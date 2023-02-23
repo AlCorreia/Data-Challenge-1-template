@@ -38,8 +38,8 @@ def train_model(
         # We then make the optimizer take a step in the right direction.
         optimizer.step()
         # Compute accuracy
-        pred = np.concatenate([pred, np.argmax(predictions.detach().numpy(), axis=-1)])
-        true = np.concatenate([true, y.detach().numpy()])
+        pred = np.concatenate([pred, np.argmax(predictions.detach().cpu().numpy(), axis=-1)])
+        true = np.concatenate([true, y.detach().cpu().numpy()])
     acc = np.sum(pred == true) / pred.shape[0]
     return acc, losses
 
@@ -65,7 +65,7 @@ def test_model(
             loss = loss_function(predictions, y)
             losses.append(loss)
             # Compute accuracy
-            pred = np.concatenate([pred, np.argmax(predictions.detach().numpy(), axis=-1)])
-            true = np.concatenate([true, y.detach().numpy()])
+            pred = np.concatenate([pred, np.argmax(predictions.detach().cpu().numpy(), axis=-1)])
+            true = np.concatenate([true, y.detach().cpu().numpy()])
     acc = np.sum(pred == true) / pred.shape[0]
     return acc, losses
