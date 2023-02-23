@@ -24,8 +24,8 @@ from typing import List
 def main(args: argparse.Namespace, activeloop: bool = True) -> None:
 
     # Load the train and test data set
-    train_dataset = ImageDataset(Path("data/X_train.npy"), Path("data/Y_train.npy"))
-    test_dataset = ImageDataset(Path("data/X_test.npy"), Path("data/Y_test.npy"))
+    train_dataset = ImageDataset(Path("../data/X_train.npy"), Path("../data/Y_train.npy"))
+    test_dataset = ImageDataset(Path("../data/X_test.npy"), Path("../data/Y_test.npy"))
 
     # Load the Neural Net. NOTE: set number of distinct labels here
     model = Net(n_classes=6)
@@ -78,19 +78,19 @@ def main(args: argparse.Namespace, activeloop: bool = True) -> None:
         if activeloop:
 
             # Training:
-            losses = train_model(model, train_sampler, optimizer, loss_function, device)
+            acc, losses = train_model(model, train_sampler, optimizer, loss_function, device)
             # Calculating and printing statistics:
             mean_loss = sum(losses) / len(losses)
             mean_losses_train.append(mean_loss)
-            print(f"\nEpoch {e + 1} training done, loss on train set: {mean_loss}\n")
+            print(f"\nEpoch {e + 1} training done, loss on train set: {mean_loss}, accuracy: {acc}\n")
 
             # Testing:
-            losses = test_model(model, test_sampler, loss_function, device)
+            acc, losses = test_model(model, test_sampler, loss_function, device)
 
             # # Calculating and printing statistics:
             mean_loss = sum(losses) / len(losses)
             mean_losses_test.append(mean_loss)
-            print(f"\nEpoch {e + 1} testing done, loss on test set: {mean_loss}\n")
+            print(f"\nEpoch {e + 1} testing done, loss on test set: {mean_loss}, accuracy: {acc}\n")
 
             ### Plotting during training
             plotext.clf()

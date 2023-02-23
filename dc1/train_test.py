@@ -1,3 +1,4 @@
+import numpy as np
 from tqdm import tqdm
 import torch
 from dc1.net import Net
@@ -14,6 +15,8 @@ def train_model(
 ) -> List[torch.Tensor]:
     # Lets keep track of all the losses:
     losses = []
+    pred = np.array([])
+    true = np.array([])
     # Put the model in train mode:
     model.train()
     # Feed all the batches one by one:
@@ -34,7 +37,11 @@ def train_model(
         loss.backward()
         # We then make the optimizer take a step in the right direction.
         optimizer.step()
-    return losses
+        # Compute accuracy
+        pred = np.concatenate([pred, np.argmax(predictions.detach().numpy(), axis=-1)])
+        true = np.concatenate([true, y.detach().numpy()])
+    acc = np.sum(pred == true) / pred.shape[0]
+    return acc, losses
 
 
 def test_model(
@@ -46,13 +53,19 @@ def test_model(
     # Setting the model to evaluation mode:
     model.eval()
     losses = []
+    pred = np.array([])
+    true = np.array([])
     # We need to make sure we do not update our model based on the test data:
     with torch.no_grad():
         for (x, y) in tqdm(test_sampler):
             # Making sure our samples are stored on the same device as our model:
             x = x.to(device)
             y = y.to(device)
-            prediction = model.forward(x)
-            loss = loss_function(prediction, y)
+            predictions = model.forward(x)
+            loss = loss_function(predictions, y)
             losses.append(loss)
-    return losses
+            # Compute accuracy
+            pred = np.concatenate([pred, np.argmax(predictions.detach().numpy(), axis=-1)])
+            true = np.concatenate([true, y.detach().numpy()])
+    acc = np.sum(pred == true) / pred.shape[0]
+    return acc, losses
